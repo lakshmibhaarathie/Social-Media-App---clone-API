@@ -7,7 +7,7 @@ from typing import Optional
 from random import randrange
 import psycopg2
 from psycopg2.extras import RealDictCursor
-
+from api.models import Base
 try:
     conn = psycopg2.connect(database="fastapi",user="postgres"
                             ,password="sql123",cursor_factory=RealDictCursor)
@@ -44,7 +44,15 @@ def get_latest_post():
 @app.get("/posts/{id}")
 def get_one_post(id:int):
     print(type(str(id)))
-    cur.execute("""SELECT * FROM posts WHERE id=%s;""",(str(id),))
+    cur.execute("""SELECT * FROM posts WHERE id=%s;""",(str(id),))  
+    """
+    We must add ',' in a tuple of only one element else it will cause an error
+
+        For our case if the '(str(id))' was written like this the SQL is not going convert 2 digit or 3 digit number\
+        as a string and going to give error.
+    Correct form:
+        (str(id),)
+    """
     post = cur.fetchone()
     if not post:
         return Response( status_code=status.HTTP_404_NOT_FOUND, content=f"The post with id {id} does not exists")

@@ -1,18 +1,24 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base, sessionmaker
 
-SQLALCHEMY_DATABASE_URL = "postgres://postgres:sql123@localhost/api_dev"
+# url = "postgresql://<username>:<password>@<host-ip address>/<databasename>"
+SQLALCHEMY_DATABASE_URL = "postgresql://postgres:sql123@localhost/api_dev"
 
+engine = create_engine(url=SQLALCHEMY_DATABASE_URL)
 
-engine = create_engine(url=SQLALCHEMY_DATABASE_URL,)
-SessionLocal = sessionmaker(bine=engine, autocommit=False
+SessionLocal = sessionmaker(bind=engine, autocommit=False
                             , autoflush=False)
 
-Base  = declarative_base()
+Base = declarative_base()
 
 def get_db():
-    db=SessionLocal()
+    """
+     Description: 
+        This function makes a connection with database.
+    Returns:
+        Database object
+    """
+    db = SessionLocal()
     try:
         yield db
     finally:
