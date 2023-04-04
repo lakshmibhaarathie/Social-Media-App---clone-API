@@ -11,7 +11,7 @@ ouath2_scheme = OAuth2PasswordBearer(tokenUrl="login")  # tokenUrl = give login 
 
 SECRET_KEY = "give@some#random%text"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRY_MINUTES = 1
+ACCESS_TOKEN_EXPIRY_MINUTES = 30
 
 def create_access_token(data:dict):
     to_encode = data.copy()

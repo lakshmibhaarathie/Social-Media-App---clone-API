@@ -1,5 +1,5 @@
 # global modules
-from fastapi import (Depends,status, APIRouter)
+from fastapi import (Depends,status, APIRouter,HTTPException)
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
 from typing import List
@@ -25,8 +25,8 @@ def create_post(post:Post, db:Session=Depends(get_db)
     """
     A pydantic model can be converted into a dictionary by adding .dict().
     """
-    print(current_user.email)
     post_dict = post.dict()    # this going to convert our pydantic model to a dictionary
+    post_dict.update({"user_id":current_user.id})
 
     """
     new_post = models.Posts(title=post.title, content=post.content
@@ -41,6 +41,15 @@ def create_post(post:Post, db:Session=Depends(get_db)
     db.refresh(new_post)    # this act similar to RETURNING * statement from sql and fetch out query result
 
     return new_post
+@router.get("/userposts",response_model=List[PostResponse])
+def get_user_posts(db:Session=Depends(get_db)
+                   , current_user=Depends(oauth2.get_current_user)):
+    posts = db.query(models.Posts).filter(models.Posts.user_id==current_user.id).all()
+
+    if not posts:
+        return Response(content="No posts created by the user."
+                        , status_code=status.HTTP_204_NO_CONTENT)
+    return posts
 
 
 
@@ -68,6 +77,8 @@ def delete_post(id:int, db:Session=Depends(get_db), current_user=Depends(oauth2.
     post = post_qry.first()
     if not post:
         return Response(content=f"There is no post with id: {id}.", status_code=status.HTTP_404_NOT_FOUND)
+    if post.user_id!=current_user.id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Access denied for the user to delete other user's post.")
     post_qry.delete(synchronize_session=False)  # as we are not expecting any output synchronize_session is set False
     db.commit()
 
@@ -81,7 +92,8 @@ def update_post(id:int, post:UpdatePost, db:Session=Depends(get_db)
     if not posts:
         return Response(content=f"The requested post with id: {id} doesnot exists."
                         , status_code=status.HTTP_404_NOT_FOUND)
-    
+    if posts.user_id!=current_user.id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Access denied for the user to update other user's post.")
     post_qry.update(post.dict() , synchronize_session=False)      # type:ignore
     db.commit()
 

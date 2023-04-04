@@ -1,6 +1,19 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
+# **************************************    User Schema   ********************************************
+
+class User(BaseModel):
+    email: EmailStr
+    password: str
+
+class UserResponse(BaseModel):
+    id:int
+    email:EmailStr
+
+    class Config:
+        orm_mode = True
+
 
 # **************************************    Post Schema   ********************************************
 class Post(BaseModel):
@@ -17,30 +30,19 @@ class Post(BaseModel):
 class UpdatePost(BaseModel):
     title:Optional[str]
     content:Optional[str]
-    published:Optional[bool]
+    published:Optional[bool]=True
 
 
 class PostResponse(BaseModel):
     title:str
+    content:str
     published:bool
+    user_info:UserResponse
 
     class Config:
         orm_mode=True
 
     
-# **************************************    User Schema   ********************************************
-
-class User(BaseModel):
-    email: EmailStr
-    password: str
-
-class UserResponse(BaseModel):
-    id:int
-    email:EmailStr
-
-    class Config:
-        orm_mode = True
-
 # **************************************    JWT Schema   ********************************************
 
 class UserLogin(BaseModel):
