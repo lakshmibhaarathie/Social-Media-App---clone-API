@@ -50,3 +50,11 @@ class UserLogin(BaseModel):
 class LoginResponse(BaseModel):
     secret_key:str
     token:str
+
+
+class Token(BaseModel):
+    access_token:str
+    token_type:str
+
+class TokenData(BaseModel):
+    id:str

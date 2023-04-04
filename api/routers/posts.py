@@ -8,21 +8,24 @@ from typing import List
 from api import models
 from api.schemas import (Post, UpdatePost, PostResponse)
 from api.database import get_db
+from api.routers import oauth2
 
 router = APIRouter(prefix="/posts", tags=["Posts"])
 
 
 @router.get("/", response_model=List[PostResponse])
-def get_posts(db:Session=Depends(get_db)):
+def get_posts(db:Session=Depends(get_db)
+              , current_user=Depends(oauth2.get_current_user)):
     posts = db.query(models.Posts).all()
     return posts
 
 @router.post("/",status_code=status.HTTP_201_CREATED, response_model=PostResponse)
-def create_post(post:Post, db:Session=Depends(get_db)):
+def create_post(post:Post, db:Session=Depends(get_db)
+                , current_user=Depends(oauth2.get_current_user)):
     """
     A pydantic model can be converted into a dictionary by adding .dict().
     """
-
+    print(current_user.email)
     post_dict = post.dict()    # this going to convert our pydantic model to a dictionary
 
     """
@@ -42,7 +45,9 @@ def create_post(post:Post, db:Session=Depends(get_db)):
 
 
 @router.get("/{id}", response_model=PostResponse)
-def get_post(id:int, db:Session=Depends(get_db)):
+def get_post(id:int, db:Session=Depends(get_db)
+             , current_user=Depends(oauth2.get_current_user)):
+
     post = db.query(models.Posts).filter(models.Posts.id==id).first()
     if not post:
         return Response(content=f"The requested post with id: {id} doesnot exists.",
@@ -51,13 +56,14 @@ def get_post(id:int, db:Session=Depends(get_db)):
 
 
 @router.delete("/{id}",status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id:int, db:Session=Depends(get_db)):
+def delete_post(id:int, db:Session=Depends(get_db), current_user=Depends(oauth2.get_current_user)):
     """
     The post to be deleted got checked for its existence with post_qry.
         Response is sent if the SQL couldn't find a post.
     On existence the post is deleted as followed.
     The changes are committed to db.
     """
+
     post_qry = db.query(models.Posts).filter(models.Posts.id==id)
     post = post_qry.first()
     if not post:
@@ -67,14 +73,16 @@ def delete_post(id:int, db:Session=Depends(get_db)):
 
 
 @router.put("/{id}", response_model=PostResponse)
-def update_post(id:int, post:UpdatePost, db:Session=Depends(get_db)):
+def update_post(id:int, post:UpdatePost, db:Session=Depends(get_db)
+                , current_user=Depends(oauth2.get_current_user)):
+
     post_qry = db.query(models.Posts).filter(models.Posts.id==id)
     posts = post_qry.first()
     if not posts:
         return Response(content=f"The requested post with id: {id} doesnot exists."
                         , status_code=status.HTTP_404_NOT_FOUND)
     
-    post_qry.update(post.dict() , synchronize_session=False)
+    post_qry.update(post.dict() , synchronize_session=False)      # type:ignore
     db.commit()
 
     return posts
