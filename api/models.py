@@ -31,3 +31,12 @@ class Users(Base):
                    , unique=True)
     password = Column(String, nullable=False)
 
+class Votes(Base):
+    __tablename__ = "votes"
+    
+    user_id = Column(Integer
+                     , ForeignKey(column="posts.user_id", ondelete="CASCADE")
+                     , nullable=False, primary_key=True)
+    post_id = Column(Integer
+                     , ForeignKey(column="posts.id", ondelete="CASCADE")
+                     , nullable=False, primary_key=True)
