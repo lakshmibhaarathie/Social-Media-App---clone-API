@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 # user-defined modules
 from api import models
-from api.utils import EnDec
+from api.utils import EncoDec
 from api.schemas import (User, UserResponse)
 from api.database import get_db
 
@@ -22,13 +22,12 @@ def get_user(id:int, db:Session=Depends(get_db)):
 @router.post("/",response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def create_user(user:User, db:Session=Depends(get_db)):
 
-    user.password = EnDec.pwd_encrypt(user.password)
+    user.password = EncoDec.pwd_encrypt(user.password)
     user_dict = user.dict()
     new_user = models.Users(**user_dict)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    print(new_user)
-
+    
     return new_user
 

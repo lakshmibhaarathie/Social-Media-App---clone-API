@@ -1,5 +1,6 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field, validator
 from typing import Optional
+from fastapi import HTTPException, status
 
 # **************************************    User Schema   ********************************************
 
@@ -34,6 +35,7 @@ class UpdatePost(BaseModel):
 
 
 class PostResponse(BaseModel):
+    id:int
     title:str
     content:str
     published:bool
@@ -60,3 +62,17 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     id:str
+
+# **************************************    Votes Schema   ********************************************
+
+class Vote(BaseModel):
+    post_id:int
+    vote:int = Field(None, le=1, ge=-1)
+
+class VoteRes(BaseModel):
+    Posts:PostResponse
+    likes:int
+    dislikes:int
+
+    class Config:
+        orm_mode=True

@@ -2,11 +2,12 @@
 from fastapi import (Depends,status, APIRouter,HTTPException)
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.expression import func, case
 from typing import List
 
 # user-defined modules
 from api import models
-from api.schemas import (Post, UpdatePost, PostResponse)
+from api.schemas import (Post, UpdatePost, PostResponse, VoteRes)
 from api.database import get_db
 from api.routers import oauth2
 
@@ -99,3 +100,18 @@ def update_post(id:int, post:UpdatePost, db:Session=Depends(get_db)
 
     return posts
 
+
+
+@router.get("/votes/vote",response_model=List[VoteRes])
+def get_post_votes(db:Session=Depends(get_db)
+                   ,current_user=Depends(oauth2.get_current_user)):
+    
+
+    likes = func.sum(case(((models.Votes.vote == 1, 1)), else_=0)).label('likes') 
+    dislikes = func.sum(case(((models.Votes.vote == -1, 1)), else_=0)).label('dislikes') 
+   
+    posts = db.query(models.Posts, likes, dislikes).join(
+        models.Votes, models.Posts.id==models.Votes.post_id, isouter=True
+        ).group_by(models.Posts.id).all()
+    
+    return posts

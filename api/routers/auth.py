@@ -4,13 +4,13 @@ from sqlalchemy.orm import Session
 from api.schemas import Token
 from api.database import get_db
 from api import models
-from api.utils import EnDec
+from api.utils import EncoDec
 from api.routers import oauth2
 
 
-router = APIRouter(tags=["Authentication"])
+router = APIRouter(prefix="/login",tags=["Authentication"])
 
-@router.post("/login",response_model=Token)
+@router.post("/",response_model=Token)
 def login(user_credentials:OAuth2PasswordRequestForm=Depends()
                          , db:Session=Depends(get_db)):
     
@@ -21,7 +21,7 @@ def login(user_credentials:OAuth2PasswordRequestForm=Depends()
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN
                             , detail="Invalid credentials...!")
     
-    good_credentials =  EnDec.password_verification(
+    good_credentials =  EncoDec.password_verification(
                         current_password=user_credentials.password
                         , encrypted_password=user.password)
     if not good_credentials:
