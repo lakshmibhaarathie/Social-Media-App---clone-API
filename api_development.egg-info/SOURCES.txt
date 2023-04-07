@@ -1,9 +1,17 @@
 setup.py
 api/__init__.py
+api/before_route_main.py
 api/database.py
 api/main.py
 api/models.py
 api/schemas.py
+api/utils.py
+api/routers/__init__.py
+api/routers/auth.py
+api/routers/oauth2.py
+api/routers/posts.py
+api/routers/users.py
+api/routers/votes.py
 api_development.egg-info/PKG-INFO
 api_development.egg-info/SOURCES.txt
 api_development.egg-info/dependency_links.txt
