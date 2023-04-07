@@ -5,7 +5,7 @@ from api.database import engine
 from api.routers import (posts,users,auth,votes)
 
 # to create the table if not exists
-models.Base.metadata.create_all(bind=engine)
+models.Base.metadata.create_all(bind=engine) # this command can be removed after we have using alembic 
 
 
 app = FastAPI()
