@@ -15,3 +15,6 @@ View -> Command Palatte -> Select Python Interpreter path |
 Terminal ->
         venv\Scripts\activate.bat
 """
+
+
+
