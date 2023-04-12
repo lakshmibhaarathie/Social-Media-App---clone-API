@@ -6,3 +6,5 @@ The users are also allowed to like and dislike other users posts.
 The User accounts are created with JWT Password Authentication.
 
 All the data operations are stored in Postgresql Database.
+
+This can be tested with POSTMAN API.
